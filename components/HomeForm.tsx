@@ -1,13 +1,29 @@
-"use client"; // must be at top
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  modelNumber: string;
+  serialNumber: string;
+  shipBox: string;
+  emailLabel: string;
+  recallSource: string;
+}
 
 export default function HomeForm() {
   const searchParams = useSearchParams();
   const initialized = useRef(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     email: "",
@@ -26,13 +42,13 @@ export default function HomeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  /* Prefill only once from URL */
+  // Prefill once from URL query
   useEffect(() => {
     if (initialized.current) return;
 
-    const phone = searchParams.get("phone") || "6135551111";
-    const model = searchParams.get("model") || "RY-4567";
-    const serial = searchParams.get("serial") || "SN123456";
+    const phone = searchParams.get("phone") || "";
+    const model = searchParams.get("model") || "";
+    const serial = searchParams.get("serial") || "";
 
     setFormData(prev => ({
       ...prev,
@@ -44,7 +60,9 @@ export default function HomeForm() {
     initialized.current = true;
   }, [searchParams]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -57,15 +75,19 @@ export default function HomeForm() {
     setErrorMessage("");
 
     try {
-      const res = await fetch("https://dashbpoai.app.n8n.cloud/webhook/f10840da-cb57-44b8-9fc4-a81fb7f1f147", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, submittedAt: new Date().toISOString() })
-      });
+      const res = await fetch(
+        "https://dashbpoai.app.n8n.cloud/webhook/f10840da-cb57-44b8-9fc4-a81fb7f1f147",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...formData, submittedAt: new Date().toISOString() })
+        }
+      );
 
       if (!res.ok) throw new Error("Webhook failed");
 
       alert("Form submitted successfully!");
+
       setFormData(prev => ({
         ...prev,
         firstName: "",
@@ -104,8 +126,7 @@ export default function HomeForm() {
 
       {/* FORM */}
       <main className="container">
-        <h1>SUBMIT CLAIM</h1>
-
+        <h1>Submit Claim</h1>
         <form className="form" onSubmit={handleSubmit} noValidate>
           {/* Customer Information */}
           <section>
@@ -135,8 +156,8 @@ export default function HomeForm() {
               <div>
                 <label>Email*</label>
                 <input
-                  name="email"
                   type="email"
+                  name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -226,7 +247,6 @@ export default function HomeForm() {
           {/* Additional Information */}
           <section>
             <h3>Additional Information</h3>
-
             <div className="full">
               <label>Do you need us to ship you a box?*</label>
               <select
@@ -242,9 +262,7 @@ export default function HomeForm() {
             </div>
 
             <div className="full">
-              <label>
-                Can we use the email provided to send you a shipping label?*
-              </label>
+              <label>Can we use the email provided to send you a shipping label?*</label>
               <select
                 name="emailLabel"
                 value={formData.emailLabel}
@@ -280,8 +298,7 @@ export default function HomeForm() {
           {errorMessage && <p className="error">{errorMessage}</p>}
 
           <p className="required">*Required</p>
-
-          <button type="submit" className="submit" disabled={isSubmitting}>
+          <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Submit Claim →"}
           </button>
         </form>
@@ -291,16 +308,8 @@ export default function HomeForm() {
       <footer className="footer">
         <div className="footer-content">
           <span>Contact Us</span>
-          <div className="social-icons">
-            {/* Add your SVG icons here as needed */}
-            <a href="#" aria-label="Instagram">📸</a>
-            <a href="#" aria-label="TikTok">🎵</a>
-            <a href="#" aria-label="Facebook">📘</a>
-            <a href="#" aria-label="YouTube">▶️</a>
-            <a href="#" aria-label="Pinterest">📌</a>
-          </div>
+          <div className="social-icons">💬</div>
         </div>
-        <div className="chat-widget" title="Chat with us">💬</div>
       </footer>
     </>
   );

@@ -1,6 +1,6 @@
-"use client"; // ensure this is top
+import dynamic from "next/dynamic";
 
-import HomeForm from "../components/HomeForm";
+const HomeForm = dynamic(() => import("../components/HomeForm"), { ssr: false });
 
 export default function Page() {
   return <HomeForm />;

@@ -1,13 +1,11 @@
-"use client";
+"use client"; // must be at top
+
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 export default function HomeForm() {
   const searchParams = useSearchParams();
   const initialized = useRef(false);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -25,19 +23,22 @@ export default function HomeForm() {
     recallSource: "",
   });
 
-  // Prefill fields dynamically from URL query params (runs once)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  /* Prefill only once from URL */
   useEffect(() => {
     if (initialized.current) return;
 
     const phone = searchParams.get("phone") || "6135551111";
-    const modelNumber = searchParams.get("model") || "RY-4567";
-    const serialNumber = searchParams.get("serial") || "SN123456";
+    const model = searchParams.get("model") || "RY-4567";
+    const serial = searchParams.get("serial") || "SN123456";
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       phone,
-      modelNumber,
-      serialNumber,
+      modelNumber: model,
+      serialNumber: serial
     }));
 
     initialized.current = true;
@@ -45,7 +46,7 @@ export default function HomeForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,25 +57,16 @@ export default function HomeForm() {
     setErrorMessage("");
 
     try {
-      const res = await fetch(
-        "https://dashbpoai.app.n8n.cloud/webhook/f10840da-cb57-44b8-9fc4-a81fb7f1f147",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...formData,
-            submittedAt: new Date().toISOString(),
-          }),
-        }
-      );
+      const res = await fetch("https://dashbpoai.app.n8n.cloud/webhook/f10840da-cb57-44b8-9fc4-a81fb7f1f147", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, submittedAt: new Date().toISOString() })
+      });
 
       if (!res.ok) throw new Error("Webhook failed");
 
       alert("Form submitted successfully!");
-
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
         firstName: "",
         lastName: "",
@@ -85,10 +77,10 @@ export default function HomeForm() {
         zip: "",
         shipBox: "",
         emailLabel: "",
-        recallSource: "",
+        recallSource: ""
       }));
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       setErrorMessage("Submission failed. Please try again.");
     } finally {
       setIsSubmitting(false);

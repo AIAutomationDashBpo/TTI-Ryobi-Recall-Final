@@ -1,11 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
-  const searchParams = useSearchParams();
-  const initialized = useRef(false); // ensure we prefill only once
-
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,27 +18,9 @@ export default function Home() {
     recallSource: "",
   });
 
-  /* PREFILL FROM URL PARAMETERS (ONCE) */
-  useEffect(() => {
-    if (initialized.current) return;
-
-    const phone = searchParams.get("phone") || "";
-    const modelNumber = searchParams.get("model") || ""; // match your query param
-    const serialNumber = searchParams.get("serial") || "";
-
-    setFormData(prev => ({
-      ...prev,
-      phone,
-      modelNumber,
-      serialNumber,
-    }));
-
-    initialized.current = true;
-  }, [searchParams]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +31,9 @@ export default function Home() {
         "https://dashbpoai.app.n8n.cloud/webhook/f10840da-cb57-44b8-9fc4-a81fb7f1f147",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(formData),
         }
       );

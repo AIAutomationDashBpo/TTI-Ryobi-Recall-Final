@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -17,6 +17,25 @@ export default function Home() {
     emailLabel: "",
     recallSource: "",
   });
+
+  // Prefill form data from URL parameters on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlData: any = {};
+
+    // Check each form field for URL parameters
+    Object.keys(formData).forEach((key) => {
+      const value = params.get(key);
+      if (value) {
+        urlData[key] = value;
+      }
+    });
+
+    // Update form data if any URL parameters were found
+    if (Object.keys(urlData).length > 0) {
+      setFormData((prev) => ({ ...prev, ...urlData }));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

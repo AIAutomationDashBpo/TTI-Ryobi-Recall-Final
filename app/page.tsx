@@ -172,16 +172,17 @@ export default function Home() {
                   placeholder="6135551111"
                   value={formData.phone}
                   onChange={(e) => {
-                    // Remove any non-phone characters immediately
+                    // Remove any non-phone characters immediately, allow +
                     const sanitizedValue = e.target.value.replace(/[^0-9()+\-\s]/g, "");
                     setFormData((prev) => ({ ...prev, phone: sanitizedValue }));
                   }}
                   pattern="^(\+1\s?)?(\(?\d{3}\)?[\s-]?)\d{3}[\s-]?\d{4}$"
                   inputMode="tel"
-                  maxLength={20}
+                  maxLength={13}
                   title="Enter a valid US or Canadian phone number"
                   required
                 />
+
 
 
               </div>

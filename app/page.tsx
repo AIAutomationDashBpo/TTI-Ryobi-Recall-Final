@@ -146,12 +146,23 @@ export default function Home() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="Email"
+                  placeholder="name@example.com"
                   value={formData.email}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    // Disallow spaces
+                    if (!/\s/.test(value)) {
+                      setFormData((prev) => ({ ...prev, email: value }));
+                    }
+                  }}
+                  pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                  maxLength={254}
+                  title="Enter a valid email address (example: name@example.com)"
                   required
                 />
               </div>
+
               <div>
                 <label htmlFor="phone">Phone*</label>
                 <input
@@ -160,9 +171,19 @@ export default function Home() {
                   type="tel"
                   placeholder="6135551111"
                   value={formData.phone}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    // Remove any non-phone characters immediately
+                    const sanitizedValue = e.target.value.replace(/[^0-9()+\-\s]/g, "");
+                    setFormData((prev) => ({ ...prev, phone: sanitizedValue }));
+                  }}
+                  pattern="^(\+1\s?)?(\(?\d{3}\)?[\s-]?)\d{3}[\s-]?\d{4}$"
+                  inputMode="tel"
+                  maxLength={20}
+                  title="Enter a valid US or Canadian phone number"
                   required
                 />
+
+
               </div>
             </div>
 
@@ -253,17 +274,29 @@ export default function Home() {
                 </select>
               </div>
               <div>
-                <label htmlFor="zip">Zip/Postal Code*</label>
+                <label htmlFor="zip">Zip / Postal Code*</label>
                 <input
                   id="zip"
                   name="zip"
-                  placeholder="Zip/Postal Code"
+                  placeholder="12345 or A1A 1A1"
                   value={formData.zip}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    let value = e.target.value.toUpperCase();
+
+                    // Allow only letters, numbers, space, and dash
+                    if (/^[A-Z0-9 -]*$/.test(value)) {
+                      setFormData((prev) => ({ ...prev, zip: value }));
+                    }
+                  }}
+                  pattern="^(\d{5}(-\d{4})?|[A-Z]\d[A-Z][ ]?\d[A-Z]\d)$"
+                  maxLength={10}
+                  title="Enter a valid US ZIP (12345 or 12345-6789) or Canadian postal code (A1A 1A1)"
                   required
                 />
               </div>
+
             </div>
+
           </section>
 
           {/* Tool Details */}

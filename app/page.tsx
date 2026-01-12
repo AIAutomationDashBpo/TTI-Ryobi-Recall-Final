@@ -18,32 +18,35 @@ export default function Home() {
     recallSource: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Prefill form data from URL parameters on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlData: any = {};
 
-    // Check each form field for URL parameters
     Object.keys(formData).forEach((key) => {
       const value = params.get(key);
       if (value) {
-        urlData[key] = value;
+        urlData[key] = decodeURIComponent(value);
       }
     });
 
-    // Update form data if any URL parameters were found
     if (Object.keys(urlData).length > 0) {
       setFormData((prev) => ({ ...prev, ...urlData }));
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const res = await fetch(
@@ -75,21 +78,27 @@ export default function Home() {
           recallSource: "",
         });
       } else {
-        alert("Error submitting form.");
+        alert("Error submitting form. Please try again.");
       }
     } catch (error) {
       console.error(error);
-      alert("Network error.");
+      alert("Network error. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <>
+    <div className="page-wrapper">
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="nav-top">
           <div className="logo">RYOBI</div>
-          <input className="search" placeholder="Can we help you find something?" />
+          <input
+            className="search"
+            placeholder="Can we help you find something?"
+            aria-label="Search"
+          />
           <div className="nav-actions">
             <span>Support</span>
             <span>Register Products</span>
@@ -105,70 +114,90 @@ export default function Home() {
           {/* Customer Information */}
           <section>
             <h3>Customer Information</h3>
-            <div className="row">
+            <div className="row-two">
               <div>
-                <label>First Name*</label>
+                <label htmlFor="firstName">First Name*</label>
                 <input
+                  id="firstName"
                   name="firstName"
                   placeholder="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
-                <label>Last Name*</label>
+                <label htmlFor="lastName">Last Name*</label>
                 <input
+                  id="lastName"
                   name="lastName"
                   placeholder="Last Name"
                   value={formData.lastName}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
 
-            <div className="row">
+            <div className="row-two">
               <div>
-                <label>Email*</label>
+                <label htmlFor="email">Email*</label>
                 <input
+                  id="email"
                   name="email"
+                  type="email"
                   placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
-                <label>Phone*</label>
+                <label htmlFor="phone">Phone*</label>
                 <input
+                  id="phone"
                   name="phone"
+                  type="tel"
                   placeholder="6135551111"
                   value={formData.phone}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
 
-            <div className="row">
+            <div className="row-four">
               <div>
-                <label>Street*</label>
+                <label htmlFor="street">Street*</label>
                 <input
+                  id="street"
                   name="street"
                   placeholder="Street"
                   value={formData.street}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
-                <label>City*</label>
+                <label htmlFor="city">City*</label>
                 <input
+                  id="city"
                   name="city"
                   placeholder="City"
                   value={formData.city}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
-                <label>State/Province*</label>
-                <select name="state" value={formData.state} onChange={handleChange}>
+                <label htmlFor="state">State/Province*</label>
+                <select
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  required
+                >
                   <option value="">State/Province</option>
                   <option value="ON">Ontario</option>
                   <option value="QC">Quebec</option>
@@ -176,12 +205,14 @@ export default function Home() {
                 </select>
               </div>
               <div>
-                <label>Zip/Postal Code*</label>
+                <label htmlFor="zip">Zip/Postal Code*</label>
                 <input
+                  id="zip"
                   name="zip"
                   placeholder="Zip/Postal Code"
                   value={formData.zip}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
@@ -190,23 +221,29 @@ export default function Home() {
           {/* Tool Details */}
           <section>
             <h3>Tool Details</h3>
-            <div className="row">
+            <div className="row-two">
               <div>
-                <label>Model Number*</label>
+                <label htmlFor="modelNumber">Model Number*</label>
                 <input
+                  id="modelNumber"
                   name="modelNumber"
                   value={formData.modelNumber}
-                  onChange={handleChange}
                   type="text"
+                  placeholder="Model Number"
+                  readOnly
+                  required
                 />
               </div>
               <div>
-                <label>Serial Number*</label>
+                <label htmlFor="serialNumber">Serial Number*</label>
                 <input
+                  id="serialNumber"
                   name="serialNumber"
                   value={formData.serialNumber}
-                  onChange={handleChange}
                   type="text"
+                  placeholder="Serial Number"
+                  readOnly
+                  required
                 />
               </div>
             </div>
@@ -216,8 +253,14 @@ export default function Home() {
           <section>
             <h3>Additional Information</h3>
             <div className="full">
-              <label>Do you need us to ship you a box?*</label>
-              <select name="shipBox" value={formData.shipBox} onChange={handleChange}>
+              <label htmlFor="shipBox">Do you need us to ship you a box?*</label>
+              <select
+                id="shipBox"
+                name="shipBox"
+                value={formData.shipBox}
+                onChange={handleChange}
+                required
+              >
                 <option value="">Select Yes or No</option>
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
@@ -225,8 +268,16 @@ export default function Home() {
             </div>
 
             <div className="full">
-              <label>Can we use the email provided to send you a shipping label?*</label>
-              <select name="emailLabel" value={formData.emailLabel} onChange={handleChange}>
+              <label htmlFor="emailLabel">
+                Can we use the email provided to send you a shipping label?*
+              </label>
+              <select
+                id="emailLabel"
+                name="emailLabel"
+                value={formData.emailLabel}
+                onChange={handleChange}
+                required
+              >
                 <option value="">Select Yes or No</option>
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
@@ -234,8 +285,15 @@ export default function Home() {
             </div>
 
             <div className="full">
-              <label>How did you hear about this recall?</label>
-              <select name="recallSource" value={formData.recallSource} onChange={handleChange}>
+              <label htmlFor="recallSource">
+                How did you hear about this recall?
+              </label>
+              <select
+                id="recallSource"
+                name="recallSource"
+                value={formData.recallSource}
+                onChange={handleChange}
+              >
                 <option value="">Select Option</option>
                 <option value="Internet">Internet</option>
                 <option value="Television">Television</option>
@@ -250,11 +308,84 @@ export default function Home() {
           </section>
 
           <p className="required">*Required</p>
-          <button type="submit" className="submit">
-            Submit Claim →
+          <button type="submit" className="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit Claim →"}
           </button>
         </form>
       </main>
-    </>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-container">
+          <div className="footer-top">
+            <div className="footer-logo-section">
+              <div className="footer-logo">RYOBI</div>
+              <div className="social-icons">
+                <a href="#" aria-label="Instagram">📷</a>
+                <a href="#" aria-label="TikTok">🎵</a>
+                <a href="#" aria-label="Facebook">📘</a>
+                <a href="#" aria-label="YouTube">📺</a>
+                <a href="#" aria-label="Pinterest">📌</a>
+              </div>
+            </div>
+
+            <div className="footer-links-grid">
+              <div className="footer-column">
+                <h4>SUPPORT</h4>
+                <ul>
+                  <li><a href="#">Manuals</a></li>
+                  <li><a href="#">Warranties</a></li>
+                  <li><a href="#">Replacement Parts</a></li>
+                </ul>
+              </div>
+
+              <div className="footer-column">
+                <h4>CATEGORIES</h4>
+                <ul>
+                  <li><a href="#">Power Tools</a></li>
+                  <li><a href="#">Outdoor Power</a></li>
+                  <li><a href="#">Recreation</a></li>
+                </ul>
+              </div>
+
+              <div className="footer-column">
+                <h4>SYSTEMS</h4>
+                <ul>
+                  <li><a href="#">18V ONE+</a></li>
+                  <li><a href="#">40V</a></li>
+                  <li><a href="#">80V</a></li>
+                </ul>
+              </div>
+
+              <div className="footer-column">
+                <h4>INTERNATIONAL</h4>
+                <ul>
+                  <li><a href="#">Australia</a></li>
+                  <li><a href="#">Canada</a></li>
+                  <li><a href="#">Europe</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="footer-newsletter">
+              <h4>STAY IN THE KNOW</h4>
+              <p>
+                SIGN UP TODAY FOR A CHANCE TO WIN AN 18V ONE+ HP SWIFTCLEAN
+                MID-SIZE SPOT & CARPET CLEANER KIT
+              </p>
+            </div>
+          </div>
+
+          <div className="footer-bottom">
+            <p>&copy; 2026 RYOBI. All rights reserved.</p>
+            <div className="footer-bottom-links">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Use</a>
+              <a href="#">Accessibility</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
